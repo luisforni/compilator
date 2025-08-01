@@ -172,7 +172,7 @@ celerybeat.pid
 *.sage.py
 
 # Environments
-#.env
+.env
 .venv
 env/
 venv/
@@ -260,4 +260,4 @@ $RECYCLE.BIN/
 *.lnk
 
 # .txt
-outputs/*.txt
+compiled/*.txt
