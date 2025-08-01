@@ -1,5 +1,6 @@
 import os
 import subprocess
+from pathlib import Path
 
 def should_include(file_path, include_exts, exclude_keywords):
     if any(kw in file_path for kw in exclude_keywords):
@@ -9,17 +10,17 @@ def should_include(file_path, include_exts, exclude_keywords):
     return True
 
 def generate_tree_header(source_dir, exclude_keywords):
-    exclude_pattern = '|'.join(exclude_keywords)
-    try:
-        result = subprocess.run(
-            ["tree", "-a", "-I", exclude_pattern, source_dir],
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-            text=True
-        )
-        return result.stdout
-    except Exception as e:
-        return f"# Error generando árbol de directorio: {e}"
+    result = []
+    source_path = Path(source_dir).resolve()
+
+    for path in sorted(source_path.rglob("*")):
+        rel_path = path.relative_to(source_path.parent)
+        if any(kw in str(rel_path) for kw in exclude_keywords):
+            continue
+        prefix = "├── " if path.is_file() else "└── "
+        result.append(f"{prefix}{rel_path}")
+
+    return f"{source_path.parent.name}/\n" + "\n".join(result)
 
 def compile_project(config):
     source_dir = config["source_dir"]
